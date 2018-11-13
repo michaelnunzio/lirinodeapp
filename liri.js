@@ -6,30 +6,74 @@
 
 const command = process.argv[2]
 
-// ******* Switch Command*****/
-// if (error) {
-//     return console.log(error);
-//    }
+var argument= ""; //blank
 
-//  switch(command) {
-//      case "concert-this":
-//      console.log("concert")
-    
-//      break;
+plsWork(command, argument)
 
-//      case "spotify-this-song":
-//      console.log("spotify")
-//      break;
+function plsWork(command, argument) {
 
-//      case "movie-this":
-//      console.log("movie")
-//      break;
+    argument = getArgument(); //creates argv based on word amount
 
-// //      case "do-what-it-says":
-// //      console.log("???")
-// //      break;
+        // ******* Switch Command*****/
 
-//  }
+        switch(command) { 
+
+            case "concert-this":
+
+            var concertTitle= argument;
+
+            if(concertTitle === "") {
+                concertThis("brockhampton");
+            } else{
+                concertThis(concertTitle)            
+            }
+
+            // console.log("concert")
+            
+            break; //*****ends concert search*****/
+
+            case "spotify-this-song":
+
+            var songTitle= argument;
+
+            if(songTitle === "") {
+                spotifyApp("All The Small Things");
+            } else{
+                spotifyApp(JSON.stringify(songTitle))
+            }
+            // console.log("spotify")
+            break;
+
+            case "movie-this":
+
+            var movieTitle= argument;
+
+            if(movieTitle === "") {
+                movieThis("Mr.Nobody");
+            } else{
+                movieThis(movieTitle)
+            }
+            break; //***Ends move search***/
+
+        //      case "do-what-it-says":
+        //      console.log("???")
+        //      break;
+
+        }
+
+} //******/plswork function end *****//
+//****function for words*****/
+function getArgument() { 
+
+	// Stores all possible arguments / words in array
+	var argumentArray = process.argv;
+
+	// Loops through words in node argument
+	for (var i = 3; i < argumentArray.length; i++) {
+		argument += argumentArray[i];
+	}
+	return argument;
+}
 
 
 
@@ -38,11 +82,12 @@ const command = process.argv[2]
 
 // ********* OBDM FUNCTION ****************// 
 
+function movieThis (movieTitle) {
 
         var request = require("request");
 
         // Then run a request to the OMDB API with the movie specified
-        request("http://www.omdbapi.com/?t=the+matrix&y=&plot=short&apikey=trilogy", function(error, response, body) {
+        request("http://www.omdbapi.com/?t="+ movieTitle +"&y=&plot=short&apikey=trilogy", function(error, response, body) { //pass the movie title argument based on the switches
 
         // If the request is successful (i.e. if the response status code is 200)
         if (!error && response.statusCode === 200) {
@@ -62,47 +107,78 @@ const command = process.argv[2]
         }
         });
 
+} //******OMDB function end *********/
 
 
-const axios = require('axios');
-var moment = require('moment');
+//***CONCERT FUNCTION****/
 
-axios.get("https://rest.bandsintown.com/artists/brockhampton/events?app_id=codingbootcamp") //bands in town api call
-.then(function (response) {
-    // console.log(response);
-        for (var i = 0; i < response.data.length; i++) { //loop through venues
-        console.log("Venue " + [i] + ": " + response.data[i].venue.name)
-        console.log("Venue Location " + [i] + ": " + response.data[i].venue.city)
-        console.log(moment(response.data[i].datetime).format('MMMM Do YYYY, h:mm:ss a')) //MOMENNNNT 
+function concertThis (concertTitle) {
 
+        const axios = require('axios');
+        var moment = require('moment');
+
+        axios.get("https://rest.bandsintown.com/artists/"+concertTitle+"/events?app_id=codingbootcamp") //bands in town api call
+        .then(function (response) {
+            // console.log(response);
+                for (var i = 0; i < response.data.length; i++) { //loop through venues
+                console.log("Venue " + [i] + ": " + response.data[i].venue.name)
+                console.log("Venue Location " + [i] + ": " + response.data[i].venue.city)
+                console.log(moment(response.data[i].datetime).format('MMMM Do YYYY, h:mm:ss a')) //MOMENNNNT 
+
+                }
+        })
+        .catch(function (error) {
+            console.log(error);
+        });
+
+} //***CONCERT FUNCTION END******/
+
+
+
+//******SPOTIFY FUNCTION**** */
+
+function spotifyApp(songTitle) {
+
+    var Spotify = require('node-spotify-api');
+    
+    var spotify = new Spotify({
+    id: "ed70995a639a415ea5948cc1d1f97370",
+    secret: "aa374329103246c2bb7c1752b2146bdd"
+    });
+
+    spotify.search({ type: 'track', query: songTitle }, function(err, data) {
+        if (err) {
+        return console.log('Error occurred: ' + err);
         }
-})
-.catch(function (error) {
-    console.log(error);
-});
+    
+    //   console.log (JSON.stringify(data)); 
+    console.log("Artist: " + JSON.stringify(data.tracks.items[0].album.artists[0].name))
+    console.log("Album Name: " + JSON.stringify(data.tracks.items[0].album.name));
+    console.log("Song Name: " + JSON.stringify(data.tracks.items[0].name));
+    // console.log(JSON.stringify(data.tracks.items[0].preview_url)); fixxx this later
+    });
 
+}
 
-//******SPOTIFY**** */
-var Spotify = require('node-spotify-api');
- 
-var spotify = new Spotify({
-  id: "ed70995a639a415ea5948cc1d1f97370",
-  secret: "aa374329103246c2bb7c1752b2146bdd"
-});
-
-spotify.search({ type: 'track', query: 'All the Small Things' }, function(err, data) {
-    if (err) {
-      return console.log('Error occurred: ' + err);
-    }
-   
-//   console.log (JSON.stringify(data)); 
-console.log("Artist: " + JSON.stringify(data.tracks.items[0].album.artists[0].name))
-console.log("Album Name: " + JSON.stringify(data.tracks.items[0].album.name));
-console.log("Song Name: " + JSON.stringify(data.tracks.items[0].name));
-// console.log(JSON.stringify(data.tracks.items[0].preview_url)); fixxx this later
-  });
-
-  // ask will 1. How to run each in a switch command? 2. Argv? 
   
-//************************** */
+//***Spotify Function End ***/
 
+
+// var Spotify = require('node-spotify-api');
+    
+//     var spotify = new Spotify({
+//     id: "ed70995a639a415ea5948cc1d1f97370",
+//     secret: "aa374329103246c2bb7c1752b2146bdd"
+//     });
+
+//     spotify.search({ type: 'track', query: 'All the Small Things' }, function(err, data) {
+//         if (err) {
+//         return console.log('Error occurred: ' + err);
+//         }
+    
+//     //   console.log (JSON.stringify(data)); 
+//     console.log("Artist: " + JSON.stringify(data.tracks.items[0].album.artists[0].name))
+//     console.log("Album Name: " + JSON.stringify(data.tracks.items[0].album.name));
+//     console.log("Song Name: " + JSON.stringify(data.tracks.items[0].name));
+//     // console.log(JSON.stringify(data.tracks.items[0].preview_url)); fixxx this later
+//     });
