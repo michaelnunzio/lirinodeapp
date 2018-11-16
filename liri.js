@@ -4,15 +4,9 @@
 //keysn
 // var spotify = new Spotify(keys.spotify); //spotifykey
 
-const command = process.argv[2]
+var command = process.argv[2];
+var argument= process.argv[3];
 
-var argument= ""; //blank
-
-plsWork(command, argument)
-
-function plsWork(command, argument) {
-
-    argument = getArgument(); //creates argv based on word amount
 
         // ******* Switch Command*****/
 
@@ -22,7 +16,7 @@ function plsWork(command, argument) {
 
             var concertTitle= argument;
 
-            if(concertTitle === "") {
+            if(concertTitle == "") {
                 concertThis("brockhampton");
             } else{
                 concertThis(concertTitle)            
@@ -36,7 +30,7 @@ function plsWork(command, argument) {
 
             var songTitle= argument;
 
-            if(songTitle === "") {
+            if(songTitle == "") {
                 spotifyApp("All The Small Things");
             } else{
                 spotifyApp(JSON.stringify(songTitle))
@@ -48,36 +42,41 @@ function plsWork(command, argument) {
 
             var movieTitle= argument;
 
-            if(movieTitle === "") {
+            if(movieTitle == "") {
                 movieThis("Mr.Nobody");
             } else{
                 movieThis(movieTitle)
             }
             break; //***Ends move search***/
 
-        //      case "do-what-it-says":
-        //      console.log("???")
-        //      break;
+             case "do-what-it-says":
+            doWhatItSays();
+             break;
 
         }
 
-} //******/plswork function end *****//
-//****function for words*****/
-function getArgument() { 
+        //*****Function for do what it says*****/
 
-	// Stores all possible arguments / words in array
-	var argumentArray = process.argv;
+        function doWhatItSays(){
+            fs.readFile("random.txt","utf8",function(err,data){
+                if(err) throw err;
+                // console.log(data.split(","));
+                const rand = data.split(","); //******** spilting the text at comma to create an array ********//
+                // console.log(randomData[0]);
+                if(rand[0] === "spotify-this-song"){
+                    // console.log(randomData[1]);
+                    spotifyThis(rand[1]);
+                }
+                else if(rand[0] === "movie-this"){
+                    movieThis(randomData[1]);
+                }
+                else if(rand[0] === "concert-this"){
+                    concertThis(rand[1]);
+                }
+            })
+        }
+//*** rand data end ****/
 
-	// Loops through words in node argument
-	for (var i = 3; i < argumentArray.length; i++) {
-		argument += argumentArray[i];
-	}
-	return argument;
-}
-
-
-
-// // }); //the fs call
 
 
 // ********* OBDM FUNCTION ****************// 
@@ -98,7 +97,7 @@ function movieThis (movieTitle) {
             console.log("The movie's Title is: " + JSON.parse(body).Title);
             console.log("The movie came out in: " + JSON.parse(body).Year);
             console.log("The movie's rating is: " + JSON.parse(body).imdbRating);
-            // console.log("Rotten Tomatoes movie rating: " + JSON.parse(body).Source.RottenTomatoes.Values); //rotten tomatoes
+            console.log("Rotten Tomatoes movie rating: " + JSON.parse(body).Ratings[1].Value); //rotten tomatoes
             console.log("The movie was produced in: " + JSON.parse(body).Country);
             console.log("The movie was produced in: " + JSON.parse(body).Language);
             console.log("Movie Plot: " + JSON.parse(body).Plot);
